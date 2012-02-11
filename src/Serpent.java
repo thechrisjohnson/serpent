@@ -83,8 +83,13 @@ public class Serpent{
     public static long[] encrypt(long textUpper, long textLower, long keyUpper, long keyLower){
         //Generate round subkeys
         long[][] rndSubkeys = subKeyGeneration(keyUpper, keyLower);
-        permute(textUpper, textLower);
+        long[] roundInput = permute(textUpper, textLower);
 
+        for(int i = 0; i < numRounds - 1; i++){
+            long mixedUpper = rndSubkeys[i][0] ^ roundInput[0];
+            long mixedLower = rndSubkeys[i][1] ^ roundInput[1];
+
+        }
 
         return null;
     }
