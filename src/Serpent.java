@@ -65,10 +65,27 @@ public class Serpent{
         0x1, 0x13, 0x15, 0x0, 0x14, 0x8, 0x2, 0x11, 
         0x7, 0x4, 0x12, 0x10, 0x9, 0x3, 0x5, 0x6
     };
-    
+
     private static final long[][] sBoxes = { s0, s1, s2, s3, s4, s5, s6, s7}; 
 
-    public static long[] encrypt(long[] plaintext, long[] key){
+    private static long[] permute(long upper, long lower){
         return null;
-    } 
+    }
+
+    private static long[] invPermute(long upper, long lower){
+        return null;
+    }
+
+    private static long[][] subKeyGeneration(long keyUpper, long keyLower){
+        return null;
+    }
+
+    public static long[] encrypt(long textUpper, long textLower, long keyUpper, long keyLower){
+        //Generate round subkeys
+        long[][] rndSubkeys = subKeyGeneration(keyUpper, keyLower);
+        permute(textUpper, textLower);
+
+
+        return null;
+    }
 }
