@@ -69,6 +69,8 @@ public class Serpent{
     private static final long[][] sBoxes = { s0, s1, s2, s3, s4, s5, s6, s7}; 
 
     private static long[] permute(long upper, long lower){
+        for(int i = 0; i < 128; i++){
+        } 
         return null;
     }
 
@@ -89,7 +91,42 @@ public class Serpent{
             long mixedUpper = rndSubkeys[i][0] ^ roundInput[0];
             long mixedLower = rndSubkeys[i][1] ^ roundInput[1];
 
+            //Do this multiple times with varying shifts
+            for(int j = 0; j < 64; j+= 4){
+                mixedUpper |= sBoxes[i % 8][(int)( mixedUpper >> j)] << j;
+                mixedLower |= sBoxes[i % 8][(int)( mixedLower >> j)] << j;
+            }
+
+            //this is the linear transformation stuffs
+            //we could add a check to do the other xor with K-hat 32 because
+            //the above is the same for all rounds
+            int x0 = (int) mixedUpper >> 32;
+            int x1 = (int) mixedUpper >> 0;
+            int x2 = (int) mixedLower >> 32;
+            int x3 = (int) mixedLower >> 0;
+
+            x0 = x0 << 13;
+            x2 = x2 << 3;
+            x1 = x1 ^ x0 ^ x2;
+            x3 = x3 ^ x2 ^ (x0 << 3);
+            x1 = x1 << 1;
+            x3 = x3 << 7;
+            x0 = x0 ^ x1 ^ x3;
+            x2 = x2 ^ x3 ^ (x1 << 7);
+            x0 = x0 << 5;
+            x2 = x2 << 22;
+
+            mixedUpper |= x0 << 32;
+            mixedUpper |= x1 << 0;
+            mixedLower |= x2 << 32;
+            mixedLower |= x3 << 0;
+
+            roundInput[0] = mixedUpper;
+            roundInput[1] = mixedLower;
         }
+
+        //TODO: change paramters later
+        long[] output = invPermute(0L, 0L);
 
         return null;
     }
