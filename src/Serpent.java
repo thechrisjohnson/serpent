@@ -1,8 +1,7 @@
 public class Serpent{
 
     private static final int numRounds = 32;
-
-    //We need the S-boxes
+    private static final long phi = 0x9e3779b9;
 
     private static final int[] initPerm = new int[] {
         0, 32, 64, 96, 1, 33, 65, 97, 2, 34, 66, 98, 3, 35, 67, 99,
@@ -79,6 +78,12 @@ public class Serpent{
     }
 
     private static long[][] subKeyGeneration(long keyUpper, long keyLower){
+        //pad key if not 256 bits;
+        //expand to 33 128bit subkeys K0 - K32
+        //write the key (prekey) as (8 32 bit words) w-8 to w-1
+        //using the S-boxes - starting at S3 - we convert wi into ki
+        //subkey Ki = k4i, k4i+1, k4i+2, and k4i+3
+        //permute using initPerm to get K-hat i
         return null;
     }
 
