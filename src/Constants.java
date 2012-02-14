@@ -1,8 +1,9 @@
 public class Constants {
 
     public static final int numRounds = 32;
-    public static final long phi = 0x9e3779b9;
-    public static final long mask = 0x8000000000000000L;
+    public static final int phi = 0x9e3779b9;
+    public static final long firstBitMask = 0x8000000000000000L;
+    public static final int fourBitMask = 0xF;
 
     public static final int[] initPerm = new int[] {
         0, 32, 64, 96, 1, 33, 65, 97, 2, 34, 66, 98, 3, 35, 67, 99,

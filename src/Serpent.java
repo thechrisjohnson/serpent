@@ -12,27 +12,28 @@ public class Serpent{
         Block permuted = new Block(0x0L, 0x0L);
 
         for (int i = 0; i < 64; i++) {
-            long t = (block.getLower() << i) & Constants.mask;
-            if (t != Constants.mask) {
+            long t = (block.getLower() << i) & Constants.firstBitMask;
+            if (t != Constants.firstBitMask) {
                 int location = permutation[i];
                 if (location > 63) {
                     location -= 64;
-                    permuted.setUpper(permuted.getUpper() | (Constants.mask >> location));
+                    permuted.setUpper(permuted.getUpper() | (Constants.firstBitMask >> location));
                 } else {
-                    permuted.setLower(permuted.getLower() | (Constants.mask >> location));
+                    permuted.setLower(permuted.getLower() | (Constants.firstBitMask >> location));
                 }
             }
                     
         }
+
         for (int i = 0; i < 64; i++) {
-            long t = (block.getUpper() << i) & Constants.mask;
-            if (t != Constants.mask) {
+            long t = (block.getUpper() << i) & Constants.firstBitMask;
+            if (t != Constants.firstBitMask) {
                 int location = permutation[i+64];
                 if (location > 63) {
                     location -= 64;
-                    permuted.setUpper(permuted.getUpper() | (Constants.mask >> location));
+                    permuted.setUpper(permuted.getUpper() | (Constants.firstBitMask >> location));
                 } else {
-                    permuted.setLower(permuted.getLower() | (Constants.mask >> location));
+                    permuted.setLower(permuted.getLower() | (Constants.firstBitMask >> location));
                 }
             }
                     
@@ -48,9 +49,11 @@ public class Serpent{
         Block roundInput = initialPermutation(text);
 
         for(int i = 0; i < Constants.numRounds; i++){
+            //Permute round subkey
+            Block roundKey = initialPermutation(serpentKey.getSubkey(i));
             //XOR round subkey
-            long lower = roundInput.getLower() ^ serpentKey.getSubkey(i).getLower();
-            long upper = roundInput.getUpper() ^ serpentKey.getSubkey(i).getUpper();
+            long lower = roundInput.getLower() ^ roundKey.getLower();
+            long upper = roundInput.getUpper() ^ roundKey.getUpper();
 /*
             //Apply S boxes
             for(int j = 0; j < 64; j+= 4){
