@@ -1,6 +1,7 @@
 public class Serpent{
 
     private static final int numRounds = 32;
+    private static final long mask = 0x8000000000000000L;
 
     //We need the S-boxes
 
@@ -69,13 +70,43 @@ public class Serpent{
     private static final long[][] sBoxes = { s0, s1, s2, s3, s4, s5, s6, s7}; 
 
     private static long[] permute(long upper, long lower){
-        for(int i = 0; i < 128; i++){
-        } 
-        return null;
+        return permute(upper, lower, initPerm);
     }
 
     private static long[] invPermute(long upper, long lower){
-        return null;
+        return permute(upper, lower, finalPerm);
+    }
+
+    private static long[] permute(long upper, long lower, int[] permutation) {
+        long[] permuted = { 0x0, 0x0 };
+        for (int i = 0; i < 64; i++) {
+            long t = (lower << i) & mask;
+            if (t != mask) {
+                int location = permutation[i];
+                if (location > 63) {
+                    location -= 64;
+                    permuted[1] |= mask >> location;
+                } else {
+                    permuted[0] |= mask >> location;
+                }
+            }
+                    
+        }
+        for (int i = 0; i < 64; i++) {
+            long t = (upper << i) & mask;
+            if (t != mask) {
+                int location = permutation[i+64];
+                if (location > 63) {
+                    location -= 64;
+                    permuted[1] |= mask >> location;
+                } else {
+                    permuted[0] |= mask >> location;
+                }
+            }
+                    
+        }
+
+        return permuted;
     }
 
     private static long[][] subKeyGeneration(long keyUpper, long keyLower){
