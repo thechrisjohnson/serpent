@@ -1,73 +1,30 @@
 public class Serpent{
 
-    private static Block initialPermutation(Block block){
-        return permute(block, Constants.initPerm);
-    }
-
-    private static Block finalPermutation(Block block){
-        return permute(block, Constants.finalPerm);
-    }
-
-    private static Block permute(Block block, int[] permutation) {
-        Block permuted = new Block(0x0L, 0x0L);
-
-        for (int i = 0; i < 64; i++) {
-            long t = (block.getLower() << i) & Constants.firstBitMask;
-            if (t != Constants.firstBitMask) {
-                int location = permutation[i];
-                if (location > 63) {
-                    location -= 64;
-                    permuted.setUpper(permuted.getUpper() | (Constants.firstBitMask >> location));
-                } else {
-                    permuted.setLower(permuted.getLower() | (Constants.firstBitMask >> location));
-                }
-            }
-                    
-        }
-
-        for (int i = 0; i < 64; i++) {
-            long t = (block.getUpper() << i) & Constants.firstBitMask;
-            if (t != Constants.firstBitMask) {
-                int location = permutation[i+64];
-                if (location > 63) {
-                    location -= 64;
-                    permuted.setUpper(permuted.getUpper() | (Constants.firstBitMask >> location));
-                } else {
-                    permuted.setLower(permuted.getLower() | (Constants.firstBitMask >> location));
-                }
-            }
-                    
-        }
-
-        return permuted;
-    }
+    public static final int numRounds = 32;
 
     public static Block encrypt(Block text, Block key){
         //Generate round subkeys
         Key serpentKey = new Key(key);
 
-        Block roundInput = initialPermutation(text);
+        Block roundInput = Permutation.initialPermutation(text);
 
-        for(int i = 0; i < Constants.numRounds; i++){
-            //Permute round subkey
-            Block roundKey = initialPermutation(serpentKey.getSubkey(i));
+        for(int i = 0; i < numRounds; i++){
             //XOR round subkey
-            long lower = roundInput.getLower() ^ roundKey.getLower();
-            long upper = roundInput.getUpper() ^ roundKey.getUpper();
-/*
+            long lower = roundInput.getLower() ^ serpentKey.getSubkey(i).getLower();
+            long upper = roundInput.getUpper() ^ serpentKey.getSubkey(i).getUpper();
+
             //Apply S boxes
-            for(int j = 0; j < 64; j+= 4){
-                mixedUpper |= sBoxes[i % 8][(int)( mixedUpper >> j)] << j;
-                mixedLower |= sBoxes[i % 8][(int)( mixedLower >> j)] << j;
-            }
+            lower = SBox.sBox(lower, i%8);
+            upper = SBox.sBox(upper, i%8);
 
-            if (numRounds < 31) {
+            if (i < 31) {
+                //Break into 32-bit words
+                int x0 = (int) (lower >> 32);
+                int x1 = (int) lower;
+                int x2 = (int) (upper >> 32);
+                int x3 = (int) upper;
+
                 //Perform linear transformation
-                int x0 = (int) mixedUpper >> 32;
-                int x1 = (int) mixedUpper >> 0;
-                int x2 = (int) mixedLower >> 32;
-                int x3 = (int) mixedLower >> 0;
-
                 x0 = x0 << 13;
                 x2 = x2 << 3;
                 x1 = x1 ^ x0 ^ x2;
@@ -79,18 +36,28 @@ public class Serpent{
                 x0 = x0 << 5;
                 x2 = x2 << 22;
 
-                mixedUpper |= x0 << 32;
-                mixedUpper |= x1 << 0;
-                mixedLower |= x2 << 32;
-                mixedLower |= x3 << 0;
+                //Recombine
+                lower = 0x0;
+                upper = 0x0;
+                lower = (((long) x0) << 32) | ((long) x1);
+                upper = (((long) x2) << 32) | ((long) x3);
             } else {
-                //XOR to last subkey
+                // XOR last key
+                Block lastKey = Permutation.initialPermutation(serpentKey.getSubkey(i+1));
+                lower ^= lastKey.getLower();
+                upper ^= lastKey.getUpper();
             }
-*/
 
+            roundInput.setLower(lower);
+            roundInput.setUpper(upper);
         }
         
         //Finish with final permutation
-        return finalPermutation(roundInput);
+        return Permutation.finalPermutation(roundInput);
+    }
+
+    public static void main(String args[]) {
+        System.out.println("");
+        
     }
 }

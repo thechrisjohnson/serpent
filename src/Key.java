@@ -3,13 +3,15 @@ import java.util.LinkedList;
 
 public class Key {
 
+    private static final int phi = 0x9e3779b9;
+
     private long first, second, third, fourth;
     private List<Block> subkeys = null;
 
     public Key(Block key) {
         first = key.getLower();
         second = key.getUpper();
-        third = Constants.firstBitMask;
+        third = 0x8000000000000000L;
         fourth = 0x0L;
         generateSubkeys();
     }
@@ -33,15 +35,13 @@ public class Key {
 
         //Generate 132 more words
         for (int i = 0; i < 132; i++) {
-            w[i+8] = (w[i-8] ^ w[i-5] ^ w[i-3] ^ w[i-1] ^ Constants.phi ^ i) << 11;
+            w[i+8] = (w[i-8] ^ w[i-5] ^ w[i-3] ^ w[i-1] ^ phi ^ i) << 11;
         }
 
         //Pass words through S-boxes
         for (int i = 0; i < 132; i++) {
-            k[i] = 0x0;
-            for (int j = 0; j < 8; j++) {
-                k[i] |= Constants.sBoxes[sbox][(w[i] >> (28 - (4*j))) & Constants.fourBitMask] << (28 - (4*j));
-            }
+
+            k[i] = SBox.sBox(w[i], sbox);
             
             //Switch s-boxes if needd
             if (i != 0 && i % 4 == 0) {
@@ -53,12 +53,18 @@ public class Key {
         }
 
         //subkey Ki = k4i, k4i+1, k4i+2, and k4i+3
-        subkeys = new LinkedList<Block>();
+        List<Block> preSubkeys = new LinkedList<Block>();
 
         for (int i = 0; i < 32; i++) {
             long upper = (((long) k[4*i]) << 32 ) | ((long) k[4*i+1]);
             long lower = (((long) k[4*i+2]) << 32 ) | ((long) k[4*i+3]);
-            subkeys.add(new Block(lower, upper));
+            preSubkeys.add(new Block(lower, upper));
+        }
+
+        //Permute subkeys
+        subkeys = new LinkedList<Block>();
+        for (Block key : preSubkeys) {
+            subkeys.add(Permutation.initialPermutation(key));
         }
     }
 
