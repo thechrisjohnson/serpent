@@ -11,6 +11,10 @@ static unsigned int rotateleft(unsigned int input, int rotation) {
 static block *permutation(block* input, int* permutation) {
     printf("Pre-Permute: 0x%08lX%08lX%08lX%08lX\n", input->first, input->second, input->third, input->fourth);
     block* permuted = malloc(sizeof(block));
+    permuted->first = 0x0;
+    permuted->second = 0x0;
+    permuted->third = 0x0;
+    permuted->fourth = 0x0;
 
     int i;
     for (i = 0; i < 32; i++) {
@@ -35,7 +39,7 @@ static block *permutation(block* input, int* permutation) {
     for (i = 0; i < 32; i++) {
         unsigned long t = (input->second << i) & mask;
         if (t) {
-            int location = permutation[i];
+            int location = permutation[i+32];
             if (location > 95) {
                 location -= 96;
                 permuted->fourth = permuted->fourth | (mask >> location);
@@ -54,7 +58,7 @@ static block *permutation(block* input, int* permutation) {
     for (i = 0; i < 32; i++) {
         unsigned long t = (input->third << i) & mask;
         if (t) {
-            int location = permutation[i];
+            int location = permutation[i+64];
             if (location > 95) {
                 location -= 96;
                 permuted->fourth = permuted->fourth | (mask >> location);
@@ -73,7 +77,7 @@ static block *permutation(block* input, int* permutation) {
     for (i = 0; i < 32; i++) {
         unsigned long t = (input->fourth << i) & mask;
         if (t) {
-            int location = permutation[i];
+            int location = permutation[i+96];
             if (location > 95) {
                 location -= 96;
                 permuted->fourth = permuted->fourth | (mask >> location);
@@ -120,7 +124,7 @@ static block **generatekeys(block* input) {
     w[1] = input->second;
     w[2] = input->third;
     w[3] = input->fourth;
-    w[4] = (unsigned int) 0x10000000U;
+    w[4] = (unsigned int) 0x0000000U;
     w[5] = (unsigned int) 0x0U;
     w[6] = (unsigned int) 0x0U;
     w[7] = (unsigned int) 0x0U;
@@ -136,46 +140,45 @@ static block **generatekeys(block* input) {
     }
 
     //Pass words through S-boxes
-    for (i = 0; i < 132; i+=4) {
-
+    for (i = 0; i < numrounds; i++) {
+        sbox = (numrounds + 3 - i) % numrounds;
         k[i] = 0x0;
-        k[i+1] = 0x0;
-        k[i+2] = 0x0;
-        k[i+3] = 0x0;
-        int j;
-        for (j = 0; j < 32; j++) {
-            unsigned int temp = 0x0;
-            unsigned int first = (w[i] << j) & mask;
-            unsigned int second = (w[i+1] << j) & mask;
-            unsigned int third = (w[i+2] << j) & mask;
-            unsigned int fourth = (w[i+3] << j) & mask;
-
-            temp = first | (second >> 1) | (third >> 2) | (fourth >> 3);
-
-            temp = sboxint(temp, sbox);
-            first = temp & mask;
-            second = (temp << 1) & mask;
-            third = (temp << 2) & mask;
-            fourth = (temp << 3) & mask;
-
-            k[i] |= first >> j;
-            k[i+1] |= second >> j;
-            k[i+2] |= third >> j;
-            k[i+3] |= fourth >> j;
-            
-        }
-
+        k[i+33] = 0x0;
+        k[i+66] = 0x0;
+        k[i+99] = 0x0;
+        unsigned int first = w[i+8];
+        unsigned int second = w[i+42];
+        unsigned int third = w[i+76];
+        unsigned int fourth = w[i+110];
         
-        //Switch s-boxes if needd
-        sbox--;
-        if (sbox < 0) {
-            sbox = 7;
+        int j;
+        for (j = 0; j < 32, j++) {
+            unsigned int a = (first<<j+3) & mask;
+            unsigned int b = (second<<j+3) & mask;
+            unsigned int c = (third<<j+3) & mask;
+            unsigned int d = (fourth<<j+3) & mask;
+
         }
 
-        printf("k[%d]: 0x%08lX\n", i, k[i]);
-        printf("k[%d]: 0x%08lX\n", i+1, k[i+1]);
-        printf("k[%d]: 0x%08lX\n", i+2, k[i+2]);
-        printf("k[%d]: 0x%08lX\n", i+3, k[i+3]);
+        temp |= (first>>3) | (second >> 2) | (third >> 1) | fourth;
+
+        temp = sboxint(temp, sbox);
+        
+        first = (temp << 3) & mask;
+        second = (temp << 2) & mask;
+        third = (temp << 1) & mask;
+        fourth = temp & mask;
+
+        k[i] |= first >> j;
+        k[i+1] |= second >> j;
+        k[i+2] |= third >> j;
+        k[i+3] |= fourth >> j;
+        
+
+        //printf("k[%d]: 0x%08lX\n", i, k[i]);
+        //printf("k[%d]: 0x%08lX\n", i+1, k[i+1]);
+        //printf("k[%d]: 0x%08lX\n", i+2, k[i+2]);
+        //printf("k[%d]: 0x%08lX\n", i+3, k[i+3]);
     }
 
     //subkey Ki = k4i, k4i+1, k4i+2, and k4i+3
@@ -261,12 +264,12 @@ static block *encrypt(block* text, block* key) {
 
 int main(int argc, char** argv) {
     block* text = malloc(sizeof(block));
-    text->first = 0U;
+    text->first = 0x0U;
     text->second = 0U;
     text->third = 0U;
     text->fourth = 0U;
     block* key = malloc(sizeof(block));
-    key->first = 0U;
+    key->first = 0x0000000;
     key->second = 0U;
     key->third = 0U;
     key->fourth = 0U;
