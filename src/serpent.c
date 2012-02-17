@@ -4,32 +4,62 @@
 #include "serpent.h"
 
 unsigned char getBitFromWord(unsigned int x, int p) {
-  return (unsigned char) ((x & ((unsigned int) 0x1 << p)) >> p);
+    return (unsigned char) ((x & ((unsigned int) 0x1 << p)) >> p);
+}
+
+unsigned char getBit(block* input, int p) {
+    int *get;
+
+    if (p > 95) {
+        get = &(input->fourth);
+    } else if (p > 63) {
+        get = &(input->third);
+    } else if (p > 31) {
+        get = &(input->second);
+    } else {
+        get = &(input->first);
+    }
+
+    return getBitFromWord(*get, p);
+}
+
+void setBit(block* input, int p, unsigned char v) {
+    int *set;
+
+    if (p > 95) {
+        set = &(input->fourth);
+    } else if (p > 63) {
+        set = &(input->third);
+    } else if (p > 31) {
+        set = &(input->second);
+    } else {
+        set = &(input->first);
+    }
+       
+    if (v) {
+        *set |= ((unsigned int) 0x1 << p%32);
+    } else {
+        *set &= ~((unsigned int) 0x1 << p%32);
+    }
 }
 
 unsigned char getBitFromNibble(unsigned char x, int p) {
-  return (unsigned char) ((x & (0x1 << p)) >> p);
+    return (unsigned char) ((x & (0x1 << p)) >> p);
 }
 
 unsigned char makeNibble(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
-  /* Return a nibble made of the given bits (b0 being the least significant). */
-  return (unsigned char) (b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
+    return (unsigned char) (b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
 }
 
 unsigned char getNibble(unsigned int x, int p) {
-  return (unsigned char) (0xf & (x >> (p*4)));
+    return (unsigned char) (0xf & (x >> (p*4)));
 }
 
 static unsigned int rotateleft(unsigned int input, int rotation) {
     return (input << rotation) | (input >> (sizeof(input)*CHAR_BIT - rotation));
 }
 
-static unsigned int rotateright(unsigned int input, int rotation) {
-    return (input >> rotation) | (input << (sizeof(input)*CHAR_BIT - rotation));
-}
-
 static block *permutation(block* input, int* permutation) {
-    //printf("Pre-Permute: 0x%08lX%08lX%08lX%08lX\n", input->first, input->second, input->third, input->fourth);
     block* permuted = malloc(sizeof(block));
     permuted->first = 0x0;
     permuted->second = 0x0;
@@ -112,7 +142,6 @@ static block *permutation(block* input, int* permutation) {
             }
         }
     }
-    //printf("Permute: 0x%08lX%08lX%08lX%08lX\n", permuted->first, permuted->second, permuted->third, permuted->fourth);
     return permuted;
 }
 
@@ -143,12 +172,55 @@ static unsigned int invsboxint(unsigned int input, int sbox) {
 }
 
 static block *initialpermutation(block* input) {
-    return permutation(input, initPerm);
+    return permutation(input, finalPerm);
 }
 
 static block *finalpermutation(block* input) {
-    return permutation(input, finalPerm);
+    return permutation(input, initPerm);
 }
+
+static block *lintrans(block* input) {
+    int i, j, t;
+    unsigned char b;
+    block* output = malloc(sizeof(block));
+    output->first = 0x0;
+    output->second = 0x0;
+    output->third = 0x0;
+    output->fourth = 0x0;
+
+    for (i = 0; i < 128; i++) {
+        b = 0;
+        j = 0;
+        while (lineartransform[i][j] != END) {
+            b ^= getBit(input, lineartransform[i][j]);
+            j++;
+        }
+        setBit(output, i, b);
+    }
+
+    return output;
+} 
+
+static block *invlintrans(block* input) {
+    int i, j;
+    unsigned char b;
+    block* output = malloc(sizeof(block));
+    output->first = 0x0;
+    output->second = 0x0;
+    output->third = 0x0;
+    output->fourth = 0x0;
+
+    for (i = 0; i < 128; i++) {
+        b = 0;
+        j = 0;
+        while (inverselineartransform[i][j] != END) {
+            b ^= getBit(input, inverselineartransform[i][j]);
+            j++;
+        }
+        setBit(output, i, b);
+    }
+    return output;
+} 
 
 static block **generatekeys(block* input) {
     unsigned int w[140];
@@ -161,19 +233,14 @@ static block **generatekeys(block* input) {
     w[1] = input->second;
     w[2] = input->third;
     w[3] = input->fourth;
-    w[4] = (unsigned int) 0x80000000U;
+    w[4] = (unsigned int) 0x00000000U;
     w[5] = (unsigned int) 0x0U;
     w[6] = (unsigned int) 0x0U;
     w[7] = (unsigned int) 0x0U;
 
-    /*for (i = 0; i < 8; i++) {
-        printf("w[%d]: 0x%08lX\n", i-8, w[i]);
-    }*/
-
     //Generate 132 more words
     for (i = 0; i < 132; i++) {
         w[i+8] = rotateleft(w[i] ^ w[i+3] ^ w[i+5] ^ w[i+7] ^ phi ^ i, 11);
-        //printf("w[%d]: 0x%08lX\n", i, w[i+8]);
     }
 
     for (i = 0; i < numrounds+1; i++) {
@@ -194,17 +261,14 @@ static block **generatekeys(block* input) {
         }
     }
 
-    /*for (i = 0; i < 132; i++) {
-        printf("k[%d]: %x\n", i, k[i]);
-    }*/
     //subkey Ki = k4i, k4i+1, k4i+2, and k4i+3
     block presubkeys[numkeys];
 
     for (i = 0; i < numkeys; i++) {
-        presubkeys[i].first = k[i*4];
-        presubkeys[i].second = k[i*4+1];
-        presubkeys[i].third = k[i*4+2];
-        presubkeys[i].fourth = k[i*4+3];
+        presubkeys[i].fourth = k[i*4];
+        presubkeys[i].third = k[i*4+1];
+        presubkeys[i].second = k[i*4+2];
+        presubkeys[i].first = k[i*4+3];
     }
 
     //Permute subkeys
@@ -225,42 +289,35 @@ static block *encrypt(block* text, block* key) {
     int i;
     for(i = 0; i < numrounds; i++){
         //XOR round subkey
-        unsigned int first = roundInput->first ^ serpentkey[i]->first;
-        unsigned int second = roundInput->second ^ serpentkey[i]->second;
-        unsigned int third = roundInput->third ^ serpentkey[i]->third;
-        unsigned int fourth = roundInput->fourth ^ serpentkey[i]->fourth;
+        roundInput->first ^= serpentkey[i]->first;
+        roundInput->second ^= serpentkey[i]->second;
+        roundInput->third ^= serpentkey[i]->third;
+        roundInput->fourth ^= serpentkey[i]->fourth;
 
         //Apply S boxes
-        first = sboxint(first, i%8);
-        second = sboxint(second, i%8);
-        third = sboxint(third, i%8);
-        fourth = sboxint(fourth, i%8);
+        roundInput->first = sboxint(roundInput->first, i%8);
+        roundInput->second = sboxint(roundInput->second, i%8);
+        roundInput->third = sboxint(roundInput->third, i%8);
+        roundInput->fourth = sboxint(roundInput->fourth, i%8);
 
+        printf("PreTransformation[%d]: %X%X%X%X\n", i, roundInput->first, roundInput->second, roundInput->third, roundInput->fourth);
+        
         if (i < 31) {
             //Perform linear transformation
-            first = rotateleft(first, 13);
-            third = rotateleft(third, 3);
-            second = second ^ first ^ third;
-            fourth = fourth ^ third ^ (first << 3);
-            second = rotateleft(second, 1);
-            fourth = rotateleft(fourth, 7);
-            first = first ^ second ^ fourth;
-            third = third ^ fourth ^ (second << 7);
-            first = rotateleft(first, 5);
-            third = rotateleft(third, 22);
+            block* output = lintrans(roundInput);
+            block* temp = roundInput;
+            roundInput = output;
+            free(temp);
+
+            printf("Transformation[%d]: %X%X%X%X\n", i, roundInput->first, roundInput->second, roundInput->third, roundInput->fourth);
 
         } else {
             // XOR last key
-            first ^= serpentkey[i+1]->first;
-            second ^= serpentkey[i+1]->second;
-            third ^= serpentkey[i+1]->third;
-            fourth ^= serpentkey[i+1]->fourth;
+            roundInput->first ^= serpentkey[i+1]->first;
+            roundInput->second ^= serpentkey[i+1]->second;
+            roundInput->third ^= serpentkey[i+1]->third;
+            roundInput->fourth ^= serpentkey[i+1]->fourth;
         }
-
-        roundInput->first = first;
-        roundInput->second = second;
-        roundInput->third = third;
-        roundInput->fourth = fourth;
     }
 
     //Clean up memory
@@ -281,46 +338,31 @@ static block *decrypt(block* cipher, block* key) {
 
     int i;
     for(i = numrounds-1; i >= 0; i--){
-        unsigned int first = roundInput->first;
-        unsigned int second = roundInput->second;
-        unsigned int third = roundInput->third;
-        unsigned int fourth = roundInput->fourth;
         if (i < 31) {
             //Perform reverse linear transformation
-            third = rotateright(third, 22);
-            first = rotateright(first, 5);
-            third = third ^ fourth ^ (second << 7);
-            first = first ^ second ^ fourth;
-            fourth = rotateright(fourth, 7);
-            second = rotateright(second, 1);
-            fourth = fourth ^ third ^ (first << 3);
-            second = second ^ first ^ third;
-            third = rotateright(third, 3);
-            first = rotateright(first, 13);
+            block* output = invlintrans(roundInput);
+            block* temp = roundInput;
+            roundInput = output;
+            free(temp);
         } else {
             // XOR last key
-            first ^= serpentkey[i+1]->first;
-            second ^= serpentkey[i+1]->second;
-            third ^= serpentkey[i+1]->third;
-            fourth ^= serpentkey[i+1]->fourth;
+            roundInput->first ^= serpentkey[i+1]->first;
+            roundInput->second ^= serpentkey[i+1]->second;
+            roundInput->third ^= serpentkey[i+1]->third;
+            roundInput->fourth ^= serpentkey[i+1]->fourth;
         }
 
         //Apply S boxes
-        first = invsboxint(first, i%8);
-        second = invsboxint(second, i%8);
-        third = invsboxint(third, i%8);
-        fourth = invsboxint(fourth, i%8);
+        roundInput->first = invsboxint(roundInput->first, i%8);
+        roundInput->second = invsboxint(roundInput->second, i%8);
+        roundInput->third = invsboxint(roundInput->third, i%8);
+        roundInput->fourth = invsboxint(roundInput->fourth, i%8);
 
         //XOR round subkey
-        first = first ^ serpentkey[i]->first;
-        second = second ^ serpentkey[i]->second;
-        third = third ^ serpentkey[i]->third;
-        fourth = fourth ^ serpentkey[i]->fourth;
-
-        roundInput->first = first;
-        roundInput->second = second;
-        roundInput->third = third;
-        roundInput->fourth = fourth;
+        roundInput->first ^= serpentkey[i]->first;
+        roundInput->second ^= serpentkey[i]->second;
+        roundInput->third ^= serpentkey[i]->third;
+        roundInput->fourth ^= serpentkey[i]->fourth;
     }
 
     //Clean up memory
@@ -335,15 +377,15 @@ static block *decrypt(block* cipher, block* key) {
 
 int main(int argc, char** argv) {
     block* text = malloc(sizeof(block));
-    text->first = 0xFFFFFFFF;
-    text->second = 0xFFFFFFFF;
-    text->third = 0xFFFFFFFF;
-    text->fourth = 0xFFFFFFFF;
+    text->first = 0x0U;
+    text->second = 0x0U;
+    text->third = 0x0U;
+    text->fourth = 0x0U;
     block* key = malloc(sizeof(block));
-    key->first = 0xFFFFFFFF;
-    key->second = 0xFFFFFFFF;
-    key->third = 0xFFFFFFFF;
-    key->fourth = 0xFFFFFFFF;
+    key->first = 0x0;
+    key->second = 0x0;
+    key->third = 0x0;
+    key->fourth = 0x0;
     
     block* cipher = encrypt(text, key);
 
