@@ -1,6 +1,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "serpent.h"
 
 inline unsigned char getbitint(unsigned int x, int p) {
@@ -209,7 +210,7 @@ static block *invlintrans(block* input) {
     return output;
 } 
 
-static block **generatekeys(block* input) {
+static block **generatekeys(key* input) {
     unsigned int w[140];
     unsigned int k[132];
     int sbox = 3;
@@ -220,10 +221,10 @@ static block **generatekeys(block* input) {
     w[1] = input->second;
     w[2] = input->third;
     w[3] = input->fourth;
-    w[4] = (unsigned int) 0x00000000U;
-    w[5] = (unsigned int) 0x0U;
-    w[6] = (unsigned int) 0x0U;
-    w[7] = (unsigned int) 0x0U;
+    w[4] = input->fifth;
+    w[5] = input->sixth;
+    w[6] = input->seventh;
+    w[7] = input->eighth;
 
     //Generate 132 more words
     for (i = 0; i < 132; i++) {
@@ -267,9 +268,9 @@ static block **generatekeys(block* input) {
     return subkeys;
 }
 
-static block *encrypt(block* text, block* key) {
+static block *encrypt(block* text, key* keyinput) {
     //Generate round subkeys
-    block** serpentkey = generatekeys(key);
+    block** serpentkey = generatekeys(keyinput);
 
     block* roundInput = initialpermutation(text);
 
@@ -313,9 +314,9 @@ static block *encrypt(block* text, block* key) {
     return finalpermutation(roundInput);
 }
 
-static block *decrypt(block* cipher, block* key) {
+static block *decrypt(block* cipher, key* keyinput) {
     //Generate round subkeys
-    block** serpentkey = generatekeys(key);
+    block** serpentkey = generatekeys(keyinput);
 
     block* roundInput = initialpermutation(cipher);
 
@@ -359,30 +360,51 @@ static block *decrypt(block* cipher, block* key) {
 }
 
 int main(int argc, char** argv) {
-    block* text = malloc(sizeof(block));
-    text->first = 0x0U;
-    text->second = 0x0U;
-    text->third = 0x0U;
-    text->fourth = 0x0U;
-    block* key = malloc(sizeof(block));
-    key->first = 0x0;
-    key->second = 0x0;
-    key->third = 0x0;
-    key->fourth = 0x0;
-  
-    int i; 
-    for (i = 0; i < 10000; i++) {
-        block* cipher = encrypt(text, key);
+    int en;
 
-        //printf("Key: 0x%08lX%08lX%08lX%08lX\n", key->first, key->second, key->third, key->fourth);
-        //printf("Text: 0x%08lX%08lX%08lX%08lX\n", text->first, text->second, text->third, text->fourth);
-        //printf("%08lX%08lX%08lX%08lX\n", cipher->first, cipher->second, cipher->third, cipher->fourth);
+    //Check args
+    if (argc != 3) {
+        printf("usage: serpent [-e|-d] key\n");
+        return 1;
+    }
+    if (strcmp(argv[1], "-e") == 0) {
+        en = 1;
+    } else if(strcmp(argv[1], "-d") == 0) {
+        en = 0;
+    } else {
+        printf("usage: serpent [-e|-d] key\n");
+        return 1;
+    }
+    
+    //Import key
+    key* keyinput = malloc(sizeof(key));
 
-        block* decipher = decrypt(cipher, key);
-         
-        //printf("Clear: 0x%08lX%08lX%08lX%08lX\n", decipher->first, decipher->second, decipher->third, decipher->fourth);
-        free(cipher);
-        free(decipher);
+    int keynum = sscanf(argv[2], "%8x%8x%8x%8x%8x%8x%8x%8x", &keyinput->first, &keyinput->second, &keyinput->third, 
+        &keyinput->fourth, &keyinput->fifth, &keyinput->sixth, &keyinput->seventh, &keyinput->eighth);
+
+    if (keynum != 8) {
+        printf("Invalid key\n");
+        return 1;
+    }
+
+    block* blockinput = malloc(sizeof(block));
+    memset(blockinput, 0, sizeof(block)); 
+    block* output;
+    int in;
+    //Encrypt or decrypt until finished
+    while(in = fscanf(stdin, "%8x%8x%8x%8x", &blockinput->first, &blockinput->second, 
+        &blockinput->third, &blockinput->fourth) != EOF) {
+        
+        if (en) {
+            output = encrypt(blockinput, keyinput);
+        } else {
+            output = decrypt(blockinput, keyinput);
+        }
+
+        //Output
+        printf("%08X%08X%08X%08X", output->first, output->second, output->third, output->fourth);
+        free(output);
+        memset(blockinput, 0, sizeof(block)); 
     }
 
     return 0;

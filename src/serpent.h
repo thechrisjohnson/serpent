@@ -5,6 +5,17 @@ typedef struct {
     unsigned int fourth;
 } block;
 
+typedef struct {
+    unsigned int first;
+    unsigned int second;
+    unsigned int third;
+    unsigned int fourth;
+    unsigned int fifth;
+    unsigned int sixth;
+    unsigned int seventh;
+    unsigned int eighth;
+} key;
+
 static int numrounds = 32;
 static int numkeys = 33;
 static unsigned int fourBitMask = 0xF0000000;
