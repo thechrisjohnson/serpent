@@ -217,14 +217,14 @@ static block **generatekeys(key* input) {
     int i,j,l;
     
     // Move pre-key into array
-    w[0] = input->first;
-    w[1] = input->second;
-    w[2] = input->third;
-    w[3] = input->fourth;
-    w[4] = input->fifth;
-    w[5] = input->sixth;
-    w[6] = input->seventh;
-    w[7] = input->eighth;
+    w[7] = input->first;
+    w[6] = input->second;
+    w[5] = input->third;
+    w[4] = input->fourth;
+    w[3] = input->fifth;
+    w[2] = input->sixth;
+    w[1] = input->seventh;
+    w[0] = input->eighth;
 
     //Generate 132 more words
     for (i = 0; i < 132; i++) {
@@ -234,14 +234,14 @@ static block **generatekeys(key* input) {
     for (i = 0; i < numrounds+1; i++) {
         k[0+4*i] = k[1+4*i] = k[2+4*i] = k[3+4*i] = 0;
         for (j = 0; j < 32; j++) {
-          unsigned char input = makechar(getbitint(w[8+4*i], j),
-                             getbitint(w[9+4*i], j),
-                             getbitint(w[10+4*i], j),
-                             getbitint(w[11+4*i], j));
-          unsigned char output = sboxchar(input, sbox);
-          for (l = 0; l < 4; l++) {
-           k[l+4*i] |= ((unsigned char) getbitfour(output, l)) << j;
-          }
+            unsigned char input = makechar(getbitint(w[8+4*i], j),
+                getbitint(w[9+4*i], j),
+                getbitint(w[10+4*i], j),
+                getbitint(w[11+4*i], j));
+            unsigned char output = sboxchar(input, sbox);
+            for (l = 0; l < 4; l++) {
+                k[l+4*i] |= ((unsigned char) getbitfour(output, l)) << j;
+            }
         }
         sbox--;
         if (sbox < 0) {
@@ -263,6 +263,7 @@ static block **generatekeys(key* input) {
     block** subkeys = malloc(sizeof(block*) * 32);
     for (i = 0; i < numkeys; i++) {
         subkeys[i] = initialpermutation(&presubkeys[i]);
+        printf("S[%d]: %8x%8x%8x%8x\n", i, subkeys[i]->first, subkeys[i]->second, subkeys[i]->third, subkeys[i]->fourth);
     }
 
     return subkeys;
