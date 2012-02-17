@@ -383,17 +383,22 @@ int main(int argc, char** argv) {
     key->second = 0x0;
     key->third = 0x0;
     key->fourth = 0x0;
-    
-    block* cipher = encrypt(text, key);
+  
+    int i; 
+    for (i = 0; i < 10000; i++) {
+        block* cipher = encrypt(text, key);
 
-    //printf("Key: 0x%08lX%08lX%08lX%08lX\n", key->first, key->second, key->third, key->fourth);
-    //printf("Text: 0x%08lX%08lX%08lX%08lX\n", text->first, text->second, text->third, text->fourth);
-    printf("%08lX%08lX%08lX%08lX\n", cipher->first, cipher->second, cipher->third, cipher->fourth);
+        //printf("Key: 0x%08lX%08lX%08lX%08lX\n", key->first, key->second, key->third, key->fourth);
+        //printf("Text: 0x%08lX%08lX%08lX%08lX\n", text->first, text->second, text->third, text->fourth);
+        //printf("%08lX%08lX%08lX%08lX\n", cipher->first, cipher->second, cipher->third, cipher->fourth);
 
-    block* decipher = decrypt(cipher, key);
+        block* decipher = decrypt(cipher, key);
 
-     
-    //printf("Clear: 0x%08lX%08lX%08lX%08lX\n", decipher->first, decipher->second, decipher->third, decipher->fourth);
+        free(cipher);
+        free(decipher);
+         
+        //printf("Clear: 0x%08lX%08lX%08lX%08lX\n", decipher->first, decipher->second, decipher->third, decipher->fourth);
+    }
 
     return 0;
 }
