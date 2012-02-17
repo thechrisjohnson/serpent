@@ -3,60 +3,23 @@
 #include <stdlib.h>
 #include "serpent.h"
 
-unsigned char getbitint(unsigned int x, int p) {
+inline unsigned char getbitint(unsigned int x, int p) {
     return (unsigned char) ((x & ((unsigned int) 0x1 << p)) >> p);
 }
 
-unsigned char getbitblock(block* input, int p) {
-    int *get;
-
-    if (p > 95) {
-        get = &(input->first);
-    } else if (p > 63) {
-        get = &(input->second);
-    } else if (p > 31) {
-        get = &(input->third);
-    } else {
-        get = &(input->fourth);
-    }
-
-    return (unsigned char) ((*get & ((unsigned int) 0x1 << p%32)) >> p%32);
-
-}
-
-void setbitblock(block* input, int p, unsigned char v) {
-    int *set;
-
-    if (p > 95) {
-        set = &(input->first);
-    } else if (p > 63) {
-        set = &(input->second);
-    } else if (p > 31) {
-        set = &(input->third);
-    } else {
-        set = &(input->fourth);
-    }
-       
-    if (v) {
-        *set |= ((unsigned int) 0x1 << p%32);
-    } else {
-        *set &= ~((unsigned int) 0x1 << p%32);
-    }
-}
-
-unsigned char getbitfour(unsigned char x, int p) {
+inline unsigned char getbitfour(unsigned char x, int p) {
     return (unsigned char) ((x & (0x1 << p)) >> p);
 }
 
-unsigned char makechar(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+inline unsigned char makechar(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
     return (unsigned char) (b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
 }
 
-unsigned char getfourbits(unsigned int x, int p) {
+inline unsigned char getfourbits(unsigned int x, int p) {
     return (unsigned char) (0xf & (x >> (p*4)));
 }
 
-static unsigned int rotateleft(unsigned int input, int rotation) {
+inline static unsigned int rotateleft(unsigned int input, int rotation) {
     return (input << rotation) | (input >> (sizeof(input)*CHAR_BIT - rotation));
 }
 
@@ -67,81 +30,41 @@ static block *permutation(block* input, int* permutation) {
     permuted->third = 0x0;
     permuted->fourth = 0x0;
 
+
     int i;
-    for (i = 0; i < 32; i++) {
-        unsigned long t = (input->first << i) & mask;
-        if (t) {
-            int location = permutation[i];
-            if (location > 95) {
-                location -= 96;
-                permuted->fourth = permuted->fourth | (mask >> location);
-            } else if (location > 63) {
-                location -= 64;
-                permuted->third = permuted->third | (mask >> location);
-            } else if (location > 31) {
-                location -= 32;
-                permuted->second = permuted->second | (mask >> location);
-            } else {
-                permuted->first = permuted->first | (mask >> location);
-            }
-        }
-    }
+    for (i = 0; i < 128; i++) {
+        int *get;
 
-    for (i = 0; i < 32; i++) {
-        unsigned long t = (input->second << i) & mask;
-        if (t) {
-            int location = permutation[i+32];
-            if (location > 95) {
-                location -= 96;
-                permuted->fourth = permuted->fourth | (mask >> location);
-            } else if (location > 63) {
-                location -= 64;
-                permuted->third = permuted->third | (mask >> location);
-            } else if (location > 31) {
-                location -= 32;
-                permuted->second = permuted->second | (mask >> location);
-            } else {
-                permuted->first = permuted->first | (mask >> location);
-            }
+        if (i > 95) {
+            get = &(input->first);
+        } else if (i > 63) {
+            get = &(input->second);
+        } else if (i > 31) {
+            get = &(input->third);
+        } else {
+            get = &(input->fourth);
         }
-    }
 
-    for (i = 0; i < 32; i++) {
-        unsigned long t = (input->third << i) & mask;
-        if (t) {
-            int location = permutation[i+64];
-            if (location > 95) {
-                location -= 96;
-                permuted->fourth = permuted->fourth | (mask >> location);
-            } else if (location > 63) {
-                location -= 64;
-                permuted->third = permuted->third | (mask >> location);
-            } else if (location > 31) {
-                location -= 32;
-                permuted->second = permuted->second | (mask >> location);
-            } else {
-                permuted->first = permuted->first | (mask >> location);
-            }
-        }
-    }
+        unsigned char bit = (unsigned char) ((*get & ((unsigned int) 0x1 << i%32)) >> i%32);
 
-    for (i = 0; i < 32; i++) {
-        unsigned long t = (input->fourth << i) & mask;
-        if (t) {
-            int location = permutation[i+96];
-            if (location > 95) {
-                location -= 96;
-                permuted->fourth = permuted->fourth | (mask >> location);
-            } else if (location > 63) {
-                location -= 64;
-                permuted->third = permuted->third | (mask >> location);
-            } else if (location > 31) {
-                location -= 32;
-                permuted->second = permuted->second | (mask >> location);
-            } else {
-                permuted->first = permuted->first | (mask >> location);
-            }
+        int *set;
+
+        if (permutation[i] > 95) {
+            set = &(permuted->first);
+        } else if (permutation[i] > 63) {
+            set = &(permuted->second);
+        } else if (permutation[i] > 31) {
+            set = &(permuted->third);
+        } else {
+            set = &(permuted->fourth);
         }
+           
+        if (bit) {
+            *set |= ((unsigned int) 0x1 << permutation[i]%32);
+        } else {
+            *set &= ~((unsigned int) 0x1 << permutation[i]%32);
+        }
+
     }
     return permuted;
 }
@@ -193,10 +116,42 @@ static block *lintrans(block* input) {
         b = 0;
         j = 0;
         while (lineartransform[i][j] != END) {
-            b ^= getbitblock(input, lineartransform[i][j]);
+            int *get;
+
+            if (lineartransform[i][j] > 95) {
+                get = &(input->first);
+            } else if (lineartransform[i][j] > 63) {
+                get = &(input->second);
+            } else if (lineartransform[i][j] > 31) {
+                get = &(input->third);
+            } else {
+                get = &(input->fourth);
+            }
+
+            unsigned char bit = (unsigned char) ((*get & ((unsigned int) 0x1 << lineartransform[i][j]%32)) 
+                >> lineartransform[i][j]%32);
+
+            b ^= bit;
             j++;
         }
-        setbitblock(output, i, b);
+        int *set;
+
+        if (i > 95) {
+            set = &(output->first);
+        } else if (i > 63) {
+            set = &(output->second);
+        } else if (i > 31) {
+            set = &(output->third);
+        } else {
+            set = &(output->fourth);
+        }
+           
+        if (b) {
+            *set |= ((unsigned int) 0x1 << i%32);
+        } else {
+            *set &= ~((unsigned int) 0x1 << i%32);
+        }
+
     }
 
     return output;
@@ -215,10 +170,41 @@ static block *invlintrans(block* input) {
         b = 0;
         j = 0;
         while (inverselineartransform[i][j] != END) {
-            b ^= getbitblock(input, inverselineartransform[i][j]);
+            int *get;
+
+            if (inverselineartransform[i][j] > 95) {
+                get = &(input->first);
+            } else if (inverselineartransform[i][j] > 63) {
+                get = &(input->second);
+            } else if (inverselineartransform[i][j] > 31) {
+                get = &(input->third);
+            } else {
+                get = &(input->fourth);
+            }
+
+            unsigned char bit = (unsigned char) ((*get & ((unsigned int) 0x1 << inverselineartransform[i][j]%32)) 
+                >> inverselineartransform[i][j]%32);
+
+            b ^= bit;
             j++;
         }
-        setbitblock(output, i, b);
+        int *set;
+
+        if (i > 95) {
+            set = &(output->first);
+        } else if (i > 63) {
+            set = &(output->second);
+        } else if (i > 31) {
+            set = &(output->third);
+        } else {
+            set = &(output->fourth);
+        }
+           
+        if (b) {
+            *set |= ((unsigned int) 0x1 << i%32);
+        } else {
+            *set &= ~((unsigned int) 0x1 << i%32);
+        }
     }
     return output;
 } 
@@ -393,11 +379,10 @@ int main(int argc, char** argv) {
         //printf("%08lX%08lX%08lX%08lX\n", cipher->first, cipher->second, cipher->third, cipher->fourth);
 
         block* decipher = decrypt(cipher, key);
-
-        free(cipher);
-        free(decipher);
          
         //printf("Clear: 0x%08lX%08lX%08lX%08lX\n", decipher->first, decipher->second, decipher->third, decipher->fourth);
+        free(cipher);
+        free(decipher);
     }
 
     return 0;

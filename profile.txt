@@ -2,26 +2,24 @@ Flat profile:
 
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
- time   seconds   seconds    calls  ms/call  ms/call  name    
- 34.26      7.54     7.54 358360000     0.00     0.00  getbitblock
- 15.58     10.97     3.43   310000     0.01     0.03  lintrans
- 13.45     13.93     2.96   310000     0.01     0.02  invlintrans
-  9.79     16.09     2.15 79360000     0.00     0.00  setbitblock
-  8.20     17.89     1.80   700000     0.00     0.00  permutation
-  6.86     19.40     1.51    20000     0.08     0.26  generatekeys
-  4.25     20.34     0.94 84480000     0.00     0.00  getbitfour
-  3.41     21.09     0.75 84480000     0.00     0.00  getbitint
-  0.91     21.29     0.20 21120000     0.00     0.00  makechar
-  0.84     21.47     0.18 31360000     0.00     0.00  sboxchar
-  0.73     21.63     0.16 20480000     0.00     0.00  getfourbits
-  0.55     21.75     0.12  1280000     0.00     0.00  sboxint
-  0.41     21.84     0.09  1280000     0.00     0.00  invsboxint
-  0.32     21.91     0.07    10000     0.01     1.06  decrypt
-  0.23     21.96     0.05 10240000     0.00     0.00  invsboxchar
-  0.14     21.99     0.03    10000     0.00     1.14  encrypt
-  0.09     22.01     0.02  2640000     0.00     0.00  rotateleft
-  0.00     22.01     0.00   680000     0.00     0.00  initialpermutation
-  0.00     22.01     0.00    20000     0.00     0.00  finalpermutation
+ time   seconds   seconds    calls  us/call  us/call  name    
+ 32.61      6.13     6.13   310000    19.77    19.77  lintrans
+ 28.35     11.46     5.33   310000    17.19    17.19  invlintrans
+ 17.53     14.76     3.29   700000     4.71     4.71  permutation
+  8.51     16.36     1.60    20000    80.00   322.89  generatekeys
+  4.10     17.12     0.77 84480000     0.01     0.01  getbitint
+  3.78     17.84     0.71 84480000     0.01     0.01  getbitfour
+  0.90     18.00     0.17  1280000     0.13     0.28  invsboxint
+  0.88     18.17     0.17 31360000     0.01     0.01  sboxchar
+  0.85     18.33     0.16  1280000     0.12     0.21  sboxint
+  0.80     18.48     0.15 21120000     0.01     0.01  makechar
+  0.69     18.61     0.13 10240000     0.01     0.01  invsboxchar
+  0.64     18.73     0.12 20480000     0.01     0.01  getfourbits
+  0.16     18.76     0.03    10000     3.00   904.31  decrypt
+  0.16     18.79     0.03    10000     3.00   975.69  encrypt
+  0.05     18.80     0.01  2640000     0.00     0.00  rotateleft
+  0.00     18.80     0.00   680000     0.00     4.71  initialpermutation
+  0.00     18.80     0.00    20000     0.00     4.71  finalpermutation
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -53,105 +51,93 @@ name       the name of the function.  This is the minor sort
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 4 byte(s) for 0.05% of 22.01 seconds
+granularity: each sample hit covers 4 byte(s) for 0.05% of 18.80 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]    100.0    0.00   22.01                 main [1]
-                0.03   11.42   10000/10000       encrypt [2]
-                0.07   10.49   10000/10000       decrypt [3]
+[1]    100.0    0.00   18.80                 main [1]
+                0.03    9.73   10000/10000       encrypt [2]
+                0.03    9.01   10000/10000       decrypt [3]
 -----------------------------------------------
-                0.03   11.42   10000/10000       main [1]
-[2]     52.0    0.03   11.42   10000         encrypt [2]
-                3.43    5.06  310000/310000      lintrans [4]
-                0.76    1.87   10000/20000       generatekeys [7]
-                0.12    0.14 1280000/1280000     sboxint [13]
-                0.00    0.03   10000/680000      initialpermutation [10]
-                0.00    0.03   10000/20000       finalpermutation [18]
+                0.03    9.73   10000/10000       main [1]
+[2]     51.9    0.03    9.73   10000         encrypt [2]
+                6.13    0.00  310000/310000      lintrans [5]
+                0.80    2.43   10000/20000       generatekeys [4]
+                0.16    0.11 1280000/1280000     sboxint [12]
+                0.00    0.05   10000/680000      initialpermutation [8]
+                0.00    0.05   10000/20000       finalpermutation [17]
 -----------------------------------------------
-                0.07   10.49   10000/10000       main [1]
-[3]     48.0    0.07   10.49   10000         decrypt [3]
-                2.96    4.64  310000/310000      invlintrans [5]
-                0.76    1.87   10000/20000       generatekeys [7]
-                0.09    0.13 1280000/1280000     invsboxint [14]
-                0.00    0.03   10000/680000      initialpermutation [10]
-                0.00    0.03   10000/20000       finalpermutation [18]
+                0.03    9.01   10000/10000       main [1]
+[3]     48.1    0.03    9.01   10000         decrypt [3]
+                5.33    0.00  310000/310000      invlintrans [6]
+                0.80    2.43   10000/20000       generatekeys [4]
+                0.17    0.19 1280000/1280000     invsboxint [11]
+                0.00    0.05   10000/680000      initialpermutation [8]
+                0.00    0.05   10000/20000       finalpermutation [17]
 -----------------------------------------------
-                3.43    5.06  310000/310000      encrypt [2]
-[4]     38.6    3.43    5.06  310000         lintrans [4]
-                3.98    0.00 189100000/358360000     getbitblock [6]
-                1.08    0.00 39680000/79360000     setbitblock [8]
+                0.80    2.43   10000/20000       encrypt [2]
+                0.80    2.43   10000/20000       decrypt [3]
+[4]     34.4    1.60    4.86   20000         generatekeys [4]
+                0.00    3.11  660000/680000      initialpermutation [8]
+                0.77    0.00 84480000/84480000     getbitint [9]
+                0.71    0.00 84480000/84480000     getbitfour [10]
+                0.15    0.00 21120000/21120000     makechar [14]
+                0.11    0.00 21120000/31360000     sboxchar [13]
+                0.01    0.00 2640000/2640000     rotateleft [18]
 -----------------------------------------------
-                2.96    4.64  310000/310000      decrypt [3]
-[5]     34.5    2.96    4.64  310000         invlintrans [5]
-                3.56    0.00 169260000/358360000     getbitblock [6]
-                1.08    0.00 39680000/79360000     setbitblock [8]
+                6.13    0.00  310000/310000      encrypt [2]
+[5]     32.6    6.13    0.00  310000         lintrans [5]
 -----------------------------------------------
-                3.56    0.00 169260000/358360000     invlintrans [5]
-                3.98    0.00 189100000/358360000     lintrans [4]
-[6]     34.3    7.54    0.00 358360000         getbitblock [6]
+                5.33    0.00  310000/310000      decrypt [3]
+[6]     28.4    5.33    0.00  310000         invlintrans [6]
 -----------------------------------------------
-                0.76    1.87   10000/20000       encrypt [2]
-                0.76    1.87   10000/20000       decrypt [3]
-[7]     23.8    1.51    3.73   20000         generatekeys [7]
-                0.00    1.70  660000/680000      initialpermutation [10]
-                0.94    0.00 84480000/84480000     getbitfour [11]
-                0.75    0.00 84480000/84480000     getbitint [12]
-                0.20    0.00 21120000/21120000     makechar [15]
-                0.12    0.00 21120000/31360000     sboxchar [16]
-                0.02    0.00 2640000/2640000     rotateleft [20]
+                0.09    0.00   20000/700000      finalpermutation [17]
+                3.20    0.00  680000/700000      initialpermutation [8]
+[7]     17.5    3.29    0.00  700000         permutation [7]
 -----------------------------------------------
-                1.08    0.00 39680000/79360000     lintrans [4]
-                1.08    0.00 39680000/79360000     invlintrans [5]
-[8]      9.8    2.15    0.00 79360000         setbitblock [8]
+                0.00    0.05   10000/680000      encrypt [2]
+                0.00    0.05   10000/680000      decrypt [3]
+                0.00    3.11  660000/680000      generatekeys [4]
+[8]     17.0    0.00    3.20  680000         initialpermutation [8]
+                3.20    0.00  680000/700000      permutation [7]
 -----------------------------------------------
-                0.05    0.00   20000/700000      finalpermutation [18]
-                1.75    0.00  680000/700000      initialpermutation [10]
-[9]      8.2    1.80    0.00  700000         permutation [9]
+                0.77    0.00 84480000/84480000     generatekeys [4]
+[9]      4.1    0.77    0.00 84480000         getbitint [9]
 -----------------------------------------------
-                0.00    0.03   10000/680000      encrypt [2]
-                0.00    0.03   10000/680000      decrypt [3]
-                0.00    1.70  660000/680000      generatekeys [7]
-[10]     8.0    0.00    1.75  680000         initialpermutation [10]
-                1.75    0.00  680000/700000      permutation [9]
+                0.71    0.00 84480000/84480000     generatekeys [4]
+[10]     3.8    0.71    0.00 84480000         getbitfour [10]
 -----------------------------------------------
-                0.94    0.00 84480000/84480000     generatekeys [7]
-[11]     4.2    0.94    0.00 84480000         getbitfour [11]
+                0.17    0.19 1280000/1280000     decrypt [3]
+[11]     1.9    0.17    0.19 1280000         invsboxint [11]
+                0.13    0.00 10240000/10240000     invsboxchar [15]
+                0.06    0.00 10240000/20480000     getfourbits [16]
 -----------------------------------------------
-                0.75    0.00 84480000/84480000     generatekeys [7]
-[12]     3.4    0.75    0.00 84480000         getbitint [12]
+                0.16    0.11 1280000/1280000     encrypt [2]
+[12]     1.5    0.16    0.11 1280000         sboxint [12]
+                0.06    0.00 10240000/20480000     getfourbits [16]
+                0.05    0.00 10240000/31360000     sboxchar [13]
 -----------------------------------------------
-                0.12    0.14 1280000/1280000     encrypt [2]
-[13]     1.2    0.12    0.14 1280000         sboxint [13]
-                0.08    0.00 10240000/20480000     getfourbits [17]
-                0.06    0.00 10240000/31360000     sboxchar [16]
+                0.05    0.00 10240000/31360000     sboxint [12]
+                0.11    0.00 21120000/31360000     generatekeys [4]
+[13]     0.9    0.17    0.00 31360000         sboxchar [13]
 -----------------------------------------------
-                0.09    0.13 1280000/1280000     decrypt [3]
-[14]     1.0    0.09    0.13 1280000         invsboxint [14]
-                0.08    0.00 10240000/20480000     getfourbits [17]
-                0.05    0.00 10240000/10240000     invsboxchar [19]
+                0.15    0.00 21120000/21120000     generatekeys [4]
+[14]     0.8    0.15    0.00 21120000         makechar [14]
 -----------------------------------------------
-                0.20    0.00 21120000/21120000     generatekeys [7]
-[15]     0.9    0.20    0.00 21120000         makechar [15]
+                0.13    0.00 10240000/10240000     invsboxint [11]
+[15]     0.7    0.13    0.00 10240000         invsboxchar [15]
 -----------------------------------------------
-                0.06    0.00 10240000/31360000     sboxint [13]
-                0.12    0.00 21120000/31360000     generatekeys [7]
-[16]     0.8    0.18    0.00 31360000         sboxchar [16]
+                0.06    0.00 10240000/20480000     sboxint [12]
+                0.06    0.00 10240000/20480000     invsboxint [11]
+[16]     0.6    0.12    0.00 20480000         getfourbits [16]
 -----------------------------------------------
-                0.08    0.00 10240000/20480000     sboxint [13]
-                0.08    0.00 10240000/20480000     invsboxint [14]
-[17]     0.7    0.16    0.00 20480000         getfourbits [17]
+                0.00    0.05   10000/20000       encrypt [2]
+                0.00    0.05   10000/20000       decrypt [3]
+[17]     0.5    0.00    0.09   20000         finalpermutation [17]
+                0.09    0.00   20000/700000      permutation [7]
 -----------------------------------------------
-                0.00    0.03   10000/20000       encrypt [2]
-                0.00    0.03   10000/20000       decrypt [3]
-[18]     0.2    0.00    0.05   20000         finalpermutation [18]
-                0.05    0.00   20000/700000      permutation [9]
------------------------------------------------
-                0.05    0.00 10240000/10240000     invsboxint [14]
-[19]     0.2    0.05    0.00 10240000         invsboxchar [19]
------------------------------------------------
-                0.02    0.00 2640000/2640000     generatekeys [7]
-[20]     0.1    0.02    0.00 2640000         rotateleft [20]
+                0.01    0.00 2640000/2640000     generatekeys [4]
+[18]     0.1    0.01    0.00 2640000         rotateleft [18]
 -----------------------------------------------
 
  This table describes the call tree of the program, and was sorted by
@@ -239,10 +225,9 @@ index % time    self  children    called     name
 
 Index by function name
 
-   [3] decrypt                [17] getfourbits             [9] permutation
-   [2] encrypt                [10] initialpermutation     [20] rotateleft
-  [18] finalpermutation        [5] invlintrans            [16] sboxchar
-   [7] generatekeys           [19] invsboxchar            [13] sboxint
-   [6] getbitblock            [14] invsboxint              [8] setbitblock
-  [11] getbitfour              [4] lintrans
-  [12] getbitint              [15] makechar
+   [3] decrypt                [16] getfourbits            [14] makechar
+   [2] encrypt                 [8] initialpermutation      [7] permutation
+  [17] finalpermutation        [6] invlintrans            [18] rotateleft
+   [4] generatekeys           [15] invsboxchar            [13] sboxchar
+  [10] getbitfour             [11] invsboxint             [12] sboxint
+   [9] getbitint               [5] lintrans
