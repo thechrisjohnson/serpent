@@ -11,29 +11,30 @@ unsigned char getBit(block* input, int p) {
     int *get;
 
     if (p > 95) {
-        get = &(input->fourth);
-    } else if (p > 63) {
-        get = &(input->third);
-    } else if (p > 31) {
-        get = &(input->second);
-    } else {
         get = &(input->first);
+    } else if (p > 63) {
+        get = &(input->second);
+    } else if (p > 31) {
+        get = &(input->third);
+    } else {
+        get = &(input->fourth);
     }
 
-    return getBitFromWord(*get, p);
+    return (unsigned char) ((*get & ((unsigned int) 0x1 << p%32)) >> p%32);
+
 }
 
 void setBit(block* input, int p, unsigned char v) {
     int *set;
 
     if (p > 95) {
-        set = &(input->fourth);
-    } else if (p > 63) {
-        set = &(input->third);
-    } else if (p > 31) {
-        set = &(input->second);
-    } else {
         set = &(input->first);
+    } else if (p > 63) {
+        set = &(input->second);
+    } else if (p > 31) {
+        set = &(input->third);
+    } else {
+        set = &(input->fourth);
     }
        
     if (v) {

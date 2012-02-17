@@ -1,0 +1,245 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+ no time accumulated
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+  0.00      0.00     0.00    35836     0.00     0.00  getBit
+  0.00      0.00     0.00     8448     0.00     0.00  getBitFromNibble
+  0.00      0.00     0.00     8448     0.00     0.00  getBitFromWord
+  0.00      0.00     0.00     7936     0.00     0.00  setBit
+  0.00      0.00     0.00     3136     0.00     0.00  sboxchar
+  0.00      0.00     0.00     2112     0.00     0.00  makeNibble
+  0.00      0.00     0.00     2048     0.00     0.00  getNibble
+  0.00      0.00     0.00     1024     0.00     0.00  invsboxchar
+  0.00      0.00     0.00      264     0.00     0.00  rotateleft
+  0.00      0.00     0.00      128     0.00     0.00  invsboxint
+  0.00      0.00     0.00      128     0.00     0.00  sboxint
+  0.00      0.00     0.00       70     0.00     0.00  permutation
+  0.00      0.00     0.00       68     0.00     0.00  initialpermutation
+  0.00      0.00     0.00       31     0.00     0.00  invlintrans
+  0.00      0.00     0.00       31     0.00     0.00  lintrans
+  0.00      0.00     0.00        2     0.00     0.00  finalpermutation
+  0.00      0.00     0.00        2     0.00     0.00  generatekeys
+  0.00      0.00     0.00        1     0.00     0.00  decrypt
+  0.00      0.00     0.00        1     0.00     0.00  encrypt
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) no time propagated
+
+index % time    self  children    called     name
+                0.00    0.00   16926/35836       invlintrans [14]
+                0.00    0.00   18910/35836       lintrans [15]
+[1]      0.0    0.00    0.00   35836         getBit [1]
+-----------------------------------------------
+                0.00    0.00    8448/8448        generatekeys [17]
+[2]      0.0    0.00    0.00    8448         getBitFromNibble [2]
+-----------------------------------------------
+                0.00    0.00    8448/8448        generatekeys [17]
+[3]      0.0    0.00    0.00    8448         getBitFromWord [3]
+-----------------------------------------------
+                0.00    0.00    3968/7936        lintrans [15]
+                0.00    0.00    3968/7936        invlintrans [14]
+[4]      0.0    0.00    0.00    7936         setBit [4]
+-----------------------------------------------
+                0.00    0.00    1024/3136        sboxint [11]
+                0.00    0.00    2112/3136        generatekeys [17]
+[5]      0.0    0.00    0.00    3136         sboxchar [5]
+-----------------------------------------------
+                0.00    0.00    2112/2112        generatekeys [17]
+[6]      0.0    0.00    0.00    2112         makeNibble [6]
+-----------------------------------------------
+                0.00    0.00    1024/2048        sboxint [11]
+                0.00    0.00    1024/2048        invsboxint [10]
+[7]      0.0    0.00    0.00    2048         getNibble [7]
+-----------------------------------------------
+                0.00    0.00    1024/1024        invsboxint [10]
+[8]      0.0    0.00    0.00    1024         invsboxchar [8]
+-----------------------------------------------
+                0.00    0.00     264/264         generatekeys [17]
+[9]      0.0    0.00    0.00     264         rotateleft [9]
+-----------------------------------------------
+                0.00    0.00     128/128         decrypt [18]
+[10]     0.0    0.00    0.00     128         invsboxint [10]
+                0.00    0.00    1024/2048        getNibble [7]
+                0.00    0.00    1024/1024        invsboxchar [8]
+-----------------------------------------------
+                0.00    0.00     128/128         encrypt [19]
+[11]     0.0    0.00    0.00     128         sboxint [11]
+                0.00    0.00    1024/2048        getNibble [7]
+                0.00    0.00    1024/3136        sboxchar [5]
+-----------------------------------------------
+                0.00    0.00       2/70          finalpermutation [16]
+                0.00    0.00      68/70          initialpermutation [13]
+[12]     0.0    0.00    0.00      70         permutation [12]
+-----------------------------------------------
+                0.00    0.00       1/68          encrypt [19]
+                0.00    0.00       1/68          decrypt [18]
+                0.00    0.00      66/68          generatekeys [17]
+[13]     0.0    0.00    0.00      68         initialpermutation [13]
+                0.00    0.00      68/70          permutation [12]
+-----------------------------------------------
+                0.00    0.00      31/31          decrypt [18]
+[14]     0.0    0.00    0.00      31         invlintrans [14]
+                0.00    0.00   16926/35836       getBit [1]
+                0.00    0.00    3968/7936        setBit [4]
+-----------------------------------------------
+                0.00    0.00      31/31          encrypt [19]
+[15]     0.0    0.00    0.00      31         lintrans [15]
+                0.00    0.00   18910/35836       getBit [1]
+                0.00    0.00    3968/7936        setBit [4]
+-----------------------------------------------
+                0.00    0.00       1/2           encrypt [19]
+                0.00    0.00       1/2           decrypt [18]
+[16]     0.0    0.00    0.00       2         finalpermutation [16]
+                0.00    0.00       2/70          permutation [12]
+-----------------------------------------------
+                0.00    0.00       1/2           encrypt [19]
+                0.00    0.00       1/2           decrypt [18]
+[17]     0.0    0.00    0.00       2         generatekeys [17]
+                0.00    0.00    8448/8448        getBitFromWord [3]
+                0.00    0.00    8448/8448        getBitFromNibble [2]
+                0.00    0.00    2112/2112        makeNibble [6]
+                0.00    0.00    2112/3136        sboxchar [5]
+                0.00    0.00     264/264         rotateleft [9]
+                0.00    0.00      66/68          initialpermutation [13]
+-----------------------------------------------
+                0.00    0.00       1/1           main [23]
+[18]     0.0    0.00    0.00       1         decrypt [18]
+                0.00    0.00     128/128         invsboxint [10]
+                0.00    0.00      31/31          invlintrans [14]
+                0.00    0.00       1/2           generatekeys [17]
+                0.00    0.00       1/68          initialpermutation [13]
+                0.00    0.00       1/2           finalpermutation [16]
+-----------------------------------------------
+                0.00    0.00       1/1           main [23]
+[19]     0.0    0.00    0.00       1         encrypt [19]
+                0.00    0.00     128/128         sboxint [11]
+                0.00    0.00      31/31          lintrans [15]
+                0.00    0.00       1/2           generatekeys [17]
+                0.00    0.00       1/68          initialpermutation [13]
+                0.00    0.00       1/2           finalpermutation [16]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+  [18] decrypt                 [7] getNibble              [12] permutation
+  [19] encrypt                [13] initialpermutation      [9] rotateleft
+  [16] finalpermutation       [14] invlintrans             [5] sboxchar
+  [17] generatekeys            [8] invsboxchar            [11] sboxint
+   [1] getBit                 [10] invsboxint              [4] setBit
+   [2] getBitFromNibble       [15] lintrans
+   [3] getBitFromWord          [6] makeNibble
