@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include "serpent.h"
 
-unsigned char getBitFromWord(unsigned int x, int p) {
+unsigned char getbitint(unsigned int x, int p) {
     return (unsigned char) ((x & ((unsigned int) 0x1 << p)) >> p);
 }
 
-unsigned char getBit(block* input, int p) {
+unsigned char getbitblock(block* input, int p) {
     int *get;
 
     if (p > 95) {
@@ -24,7 +24,7 @@ unsigned char getBit(block* input, int p) {
 
 }
 
-void setBit(block* input, int p, unsigned char v) {
+void setbitblock(block* input, int p, unsigned char v) {
     int *set;
 
     if (p > 95) {
@@ -44,15 +44,15 @@ void setBit(block* input, int p, unsigned char v) {
     }
 }
 
-unsigned char getBitFromNibble(unsigned char x, int p) {
+unsigned char getbitfour(unsigned char x, int p) {
     return (unsigned char) ((x & (0x1 << p)) >> p);
 }
 
-unsigned char makeNibble(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+unsigned char makechar(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
     return (unsigned char) (b0 | (b1 << 1) | (b2 << 2) | (b3 << 3));
 }
 
-unsigned char getNibble(unsigned int x, int p) {
+unsigned char getfourbits(unsigned int x, int p) {
     return (unsigned char) (0xf & (x >> (p*4)));
 }
 
@@ -154,7 +154,7 @@ static unsigned int sboxint(unsigned int input, int sbox) {
     unsigned int temp = 0x0;
     int i;
     for (i = 0; i < 8; i++) {
-      temp |= ((unsigned int) sboxchar(getNibble(input, i), sbox)) << (i*4);
+      temp |= ((unsigned int) sboxchar(getfourbits(input, i), sbox)) << (i*4);
     }
     return temp;
 }
@@ -167,7 +167,7 @@ static unsigned int invsboxint(unsigned int input, int sbox) {
     unsigned int temp = 0x0;
     int i;
     for (i = 0; i < 8; i++) {
-      temp |= ((unsigned int) invsboxchar(getNibble(input, i), sbox)) << (i*4);
+      temp |= ((unsigned int) invsboxchar(getfourbits(input, i), sbox)) << (i*4);
     }
     return temp;
 }
@@ -193,10 +193,10 @@ static block *lintrans(block* input) {
         b = 0;
         j = 0;
         while (lineartransform[i][j] != END) {
-            b ^= getBit(input, lineartransform[i][j]);
+            b ^= getbitblock(input, lineartransform[i][j]);
             j++;
         }
-        setBit(output, i, b);
+        setbitblock(output, i, b);
     }
 
     return output;
@@ -215,10 +215,10 @@ static block *invlintrans(block* input) {
         b = 0;
         j = 0;
         while (inverselineartransform[i][j] != END) {
-            b ^= getBit(input, inverselineartransform[i][j]);
+            b ^= getbitblock(input, inverselineartransform[i][j]);
             j++;
         }
-        setBit(output, i, b);
+        setbitblock(output, i, b);
     }
     return output;
 } 
@@ -247,13 +247,13 @@ static block **generatekeys(block* input) {
     for (i = 0; i < numrounds+1; i++) {
         k[0+4*i] = k[1+4*i] = k[2+4*i] = k[3+4*i] = 0;
         for (j = 0; j < 32; j++) {
-          unsigned char input = makeNibble(getBitFromWord(w[8+4*i], j),
-                             getBitFromWord(w[9+4*i], j),
-                             getBitFromWord(w[10+4*i], j),
-                             getBitFromWord(w[11+4*i], j));
+          unsigned char input = makechar(getbitint(w[8+4*i], j),
+                             getbitint(w[9+4*i], j),
+                             getbitint(w[10+4*i], j),
+                             getbitint(w[11+4*i], j));
           unsigned char output = sboxchar(input, sbox);
           for (l = 0; l < 4; l++) {
-           k[l+4*i] |= ((unsigned char) getBitFromNibble(output, l)) << j;
+           k[l+4*i] |= ((unsigned char) getbitfour(output, l)) << j;
           }
         }
         sbox--;
@@ -300,8 +300,6 @@ static block *encrypt(block* text, block* key) {
         roundInput->second = sboxint(roundInput->second, i%8);
         roundInput->third = sboxint(roundInput->third, i%8);
         roundInput->fourth = sboxint(roundInput->fourth, i%8);
-
-        printf("PreTransformation[%d]: %X%X%X%X\n", i, roundInput->first, roundInput->second, roundInput->third, roundInput->fourth);
         
         if (i < 31) {
             //Perform linear transformation
@@ -309,8 +307,6 @@ static block *encrypt(block* text, block* key) {
             block* temp = roundInput;
             roundInput = output;
             free(temp);
-
-            printf("Transformation[%d]: %X%X%X%X\n", i, roundInput->first, roundInput->second, roundInput->third, roundInput->fourth);
 
         } else {
             // XOR last key
@@ -390,14 +386,14 @@ int main(int argc, char** argv) {
     
     block* cipher = encrypt(text, key);
 
-    printf("Key: 0x%08lX%08lX%08lX%08lX\n", key->first, key->second, key->third, key->fourth);
-    printf("Text: 0x%08lX%08lX%08lX%08lX\n", text->first, text->second, text->third, text->fourth);
-    printf("Cipher: 0x%08lX%08lX%08lX%08lX\n", cipher->first, cipher->second, cipher->third, cipher->fourth);
+    //printf("Key: 0x%08lX%08lX%08lX%08lX\n", key->first, key->second, key->third, key->fourth);
+    //printf("Text: 0x%08lX%08lX%08lX%08lX\n", text->first, text->second, text->third, text->fourth);
+    printf("%08lX%08lX%08lX%08lX\n", cipher->first, cipher->second, cipher->third, cipher->fourth);
 
     block* decipher = decrypt(cipher, key);
 
      
-    printf("Clear: 0x%08lX%08lX%08lX%08lX\n", decipher->first, decipher->second, decipher->third, decipher->fourth);
+    //printf("Clear: 0x%08lX%08lX%08lX%08lX\n", decipher->first, decipher->second, decipher->third, decipher->fourth);
 
     return 0;
 }
