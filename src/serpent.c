@@ -232,14 +232,14 @@ static block **generatekeys(key* input) {
     int i,j,l;
     
     // Move pre-key into array
-    w[0] = input->first;
-    w[1] = input->second;
-    w[2] = input->third;
-    w[3] = input->fourth;
-    w[4] = input->fifth;
-    w[5] = input->sixth;
-    w[6] = input->seventh;
-    w[7] = input->eighth;
+    w[7] = input->first;
+    w[6] = input->second;
+    w[5] = input->third;
+    w[4] = input->fourth;
+    w[3] = input->fifth;
+    w[2] = input->sixth;
+    w[1] = input->seventh;
+    w[0] = input->eighth;
 
     //Generate 132 more words
     for (i = 0; i < 132; i++) {
