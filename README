@@ -1,0 +1,4 @@
+Building the software can be done on any machine that can execute make. 
+  -To build the original implementation run "make main-orig". This generates executable called serpent-orig.
+  -To build the revised implementation run "make main-opt". This generates executable called serpent-opt.
+  -To build test programs run "make test-opt", and "make test-orig"
