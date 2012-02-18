@@ -263,7 +263,6 @@ static block **generatekeys(key* input) {
     block** subkeys = malloc(sizeof(block*) * 32);
     for (i = 0; i < numkeys; i++) {
         subkeys[i] = initialpermutation(&presubkeys[i]);
-        printf("S[%d]: %8x%8x%8x%8x\n", i, subkeys[i]->first, subkeys[i]->second, subkeys[i]->third, subkeys[i]->fourth);
     }
 
     return subkeys;
