@@ -18,7 +18,6 @@ typedef struct {
 
 static int numrounds = 32;
 static int numkeys = 33;
-static unsigned int fourBitMask = 0xF0000000;
 static unsigned int mask = 0x80000000;
 static unsigned int phi = 0x9e3779b9;
 
