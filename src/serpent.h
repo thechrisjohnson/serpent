@@ -21,7 +21,7 @@ static int numkeys = 33;
 static unsigned int mask = 0x80000000;
 static unsigned int phi = 0x9e3779b9;
 
-unsigned char sboxes[][16] = {
+static unsigned char sboxes[][16] = {
 	{ 3, 8,15, 1,10, 6, 5,11,14,13, 4, 2, 7, 0, 9,12 },
 	{15,12, 2, 7, 9, 0, 5,10, 1,11,14, 8, 6,13, 3, 4 },
 	{ 8, 6, 7, 9, 3,12,10,15,13, 1,14, 4, 0,11, 5, 2 },
@@ -31,7 +31,7 @@ unsigned char sboxes[][16] = {
 	{ 7, 2,12, 5, 8, 4, 6,11,14, 9, 1,15,13, 3,10, 0 },
 	{ 1,13,15, 0,14, 8, 2,11, 7, 4,12,10, 9, 3, 5, 6 }};
 
-unsigned char invsboxes[][16] = {
+static unsigned char invsboxes[][16] = {
 	{13, 3,11, 0,10, 6, 5,12, 1,14, 4, 7,15, 9, 8, 2 },
 	{ 5, 8, 2,14,15, 6,12, 3,11, 4, 7, 9, 1,13,10, 0 },
 	{12, 9,15, 4,11,14, 1, 2, 0, 3, 6,13, 5, 8,10, 7 },
@@ -325,3 +325,6 @@ static unsigned char inverselineartransform[][8] = {
     {11, 98, END},
     {4, 27, 86, 97, 113, 115, 127, END}
 };
+
+block *encrypt(block* text, key* keyoriginial);
+block *decrypt(block* cipher, key* keyoriginal);
